@@ -1,0 +1,162 @@
+
+body {
+  background: #f8f9fa; 
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  color: #222;
+}
+
+h1 {
+  text-align: center;
+  font-weight: bold;
+  font-size: 2.5em;
+  margin-top: 35px;
+  color: #E63946; 
+}
+
+h2 {
+  font-weight: bold;
+  color: #333;
+  margin-top: 30px;
+}
+
+h3 {
+  font-size: 1.4em;
+  font-weight: bold;
+  color: #1D3557; 
+  margin-bottom: 10px;
+}
+
+nav {
+  background: #E63946; 
+  margin: 0 0 25px 0;
+}
+
+nav p {
+  margin: 0;
+  padding: 12px;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  font-size: 1.1em;
+}
+
+ul {
+  display: flex;
+  justify-content: center;
+  list-style-type: none;
+  padding: 0;
+  margin-bottom: 25px;
+}
+
+ul li {
+  margin: 0 18px;
+}
+
+ul li a {
+  font-weight: bold;
+  text-decoration: none;
+  font-size: 1.05em;
+  padding: 8px 16px;
+  color: #457B9D; 
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+
+ul li a:hover {
+  background: #A8DADC;
+  color: #E63946;
+}
+
+form {
+  max-width: 340px;
+  margin: 0 auto 40px auto;
+  padding: 18px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.08);
+}
+
+
+label {
+  font-weight: bold;
+  color: #1D3557;
+}
+
+input[type="email"],
+input[type="password"] {
+  width: 98%;
+  padding: 8px;
+  margin: 6px 0 15px 0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1em;
+  box-sizing: border-box;
+}
+
+button[type="submit"],
+button[type="button"] {
+  background-color: #E63946;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 22px;
+  font-size: 1em;
+  font-weight: bold;
+  cursor: pointer;
+  margin-right: 10px;
+  margin-bottom: 12px;
+  transition: background 0.2s;
+}
+
+button[type="submit"]:hover,
+button[type="button"]:hover {
+  background-color: #B22222;
+}
+
+table {
+  width: 60%;
+  margin: 0 auto 28px auto;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.08);
+}
+
+th, td {
+  padding: 11px 16px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background: #A8DADC;
+  color: #1D3557;
+  font-weight: bold;
+}
+
+section {
+  max-width: 660px;
+  margin: 0 auto 25px auto;
+  padding: 18px 32px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.09);
+}
+
+ul:not(nav ul) {
+  align-items: flex-start;
+  padding-left: 20px;
+  margin-bottom: 0;
+}
+
+ul:not(nav ul) li {
+  margin-bottom: 7px;
+}
+
+hr {
+  border: none;
+  border-top: 1.5px solid #A8DADC;
+  margin: 24px 0;
+}
