@@ -329,7 +329,7 @@ $pending_requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
             formData.append('message', message || '');
 
             
-            fetch('student_actions.php', {
+            fetch('studentactions.php', {
                 method: 'POST',
                 body: formData
             })
