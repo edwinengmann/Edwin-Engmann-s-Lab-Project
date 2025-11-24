@@ -235,7 +235,7 @@ $user_email = $_SESSION['user_email'];
         const formData = new FormData(this);
         formData.append('action', 'create_course');
 
-        fetch('faculty_actions.php', {
+        fetch('facultyactions.php', {
             method: 'POST',
             body: new URLSearchParams(formData)
         })
@@ -254,7 +254,7 @@ $user_email = $_SESSION['user_email'];
 
     
     function loadCourses() {
-        fetch('faculty_actions.php', {
+        fetch('facultyactions.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: 'action=get_courses'
@@ -283,7 +283,7 @@ $user_email = $_SESSION['user_email'];
 
     
     function loadRequests() {
-        fetch('faculty_actions.php', {
+        fetch('facultyactions.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: 'action=get_requests'
@@ -317,7 +317,7 @@ $user_email = $_SESSION['user_email'];
     function approveRequest(requestId) {
         if (!confirm('Are you sure you want to approve this request?')) return;
         
-        fetch('faculty_actions.php', {
+        fetch('facultyactions.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `action=approve_request&request_id=${requestId}`
@@ -338,7 +338,7 @@ $user_email = $_SESSION['user_email'];
     function rejectRequest(requestId) {
         if (!confirm('Are you sure you want to reject this request?')) return;
         
-        fetch('faculty_actions.php', {
+        fetch('facultyactions.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `action=reject_request&request_id=${requestId}`
@@ -359,7 +359,7 @@ $user_email = $_SESSION['user_email'];
     function deleteCourse(courseId, courseName) {
         if (!confirm(`Are you sure you want to delete "${courseName}"? This will remove all enrollments.`)) return;
         
-        fetch('faculty_actions.php', {
+        fetch('facultyactions.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `action=delete_course&course_id=${courseId}`
