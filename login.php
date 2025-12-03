@@ -1,58 +1,16 @@
 <?php
 session_start();
 
-$host = 'localhost';
-$dbname = 'attendance_system';
-$username = 'root';
-$password = '';
-
-$error_message = '';
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    try {
-        $conn = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        
-        $email = trim($_POST['username']);
-        $password_input = $_POST['password'];
-        
-        $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
-        $stmt->execute([$email]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        if ($user && password_verify($password_input, $user['password'])) {
-            
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['user_name'] = $user['first_name'] . ' ' . $user['last_name'];
-            $_SESSION['user_role'] = $user['role'];
-            $_SESSION['user_email'] = $user['email'];
-            
-            
-            error_log("User role from database: " . $user['role']);
-            
-            
-            $role = strtolower(trim($user['role']));
-            
-            if ($role === 'student') {
-                header("Location: studentdashboard.php");
-                exit();
-            } elseif ($role === 'faculty') {
-                header("Location: facultydashboard.php");
-                exit();
-            } elseif ($role === 'facultyintern') {
-                header("Location: fidashboard.php");
-                exit();
-            } else {
-                
-                header("Location: studentdashboard.php");
-                exit();
-            }
-        } else {
-            $error_message = "Invalid email or password!";
-        }
-    } catch(PDOException $e) {
-        $error_message = "Error: " . $e->getMessage();
+if (isset($_SESSION['user_id'])) {
+    $role = strtolower(trim($_SESSION['user_role']));
+    if ($role === 'student') {
+        header("Location: studentdashboard.php");
+    } elseif ($role === 'faculty') {
+        header("Location: facultydashboard.php");
+    } elseif ($role === 'facultyintern') {
+        header("Location: fidashboard.php");
     }
+    exit();
 }
 ?>
 <!DOCTYPE html>
@@ -67,27 +25,110 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <body>
     <div class="main-title">ASHESI ATTENDANCE MANAGEMENT SYSTEM</div>
     
-    <?php if ($error_message): ?>
-      <div style="text-align: center; padding: 10px; margin: 10px auto; width: 320px; border-radius: 5px; background-color: #ffdddd; color: #d8000c; border: 1px solid #d8000c;">
-        <?php echo htmlspecialchars($error_message); ?>
-      </div>
-    <?php endif; ?>
+    <div id="alertContainer" class="alert"></div>
+    <div id="loadingContainer" class="loading">
+        <div class="spinner"></div>
+        <p>Logging in...</p>
+    </div>
     
-    <form action="login.php" method="post">
+    <form id="loginForm" method="post">
         <div class="login-page">
-        <label for="Email_Input">Enter your email: </label>
-        <input type="email" name="username" id="Email_Input" placeholder="email" required>
-        
-        <label for="Password_Input">Enter your password: </label>
-        <input type="password" name="password" id="Password_Input" placeholder="password" required>
+            <label for="Email_Input">Enter your email: </label>
+            <input type="email" name="username" id="Email_Input" placeholder="email" required>
+            
+            <label for="Password_Input">Enter your password: </label>
+            <input type="password" name="password" id="Password_Input" placeholder="password" required>
 
-        <input type="submit" value="LOGIN">
+            <input type="submit" value="LOGIN" id="loginBtn">
         </div>
 
         <div class="signup-link">
-        Don't have an account?
-        <a href="signup.php">You can sign up here</a>
+            Don't have an account?
+            <a href="signup.php">You can sign up here</a>
         </div>
     </form>
+
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const alertContainer = document.getElementById('alertContainer');
+        const loadingContainer = document.getElementById('loadingContainer');
+        const loginBtn = document.getElementById('loginBtn');
+
+        
+        function showAlert(message, type) {
+            alertContainer.textContent = message;
+            alertContainer.className = `alert alert-${type}`;
+            alertContainer.style.display = 'block';
+            
+            
+            setTimeout(() => {
+                alertContainer.style.display = 'none';
+            }, 5000);
+        }
+
+        
+        function showLoading(show) {
+            if (show) {
+                loadingContainer.style.display = 'block';
+                loginBtn.disabled = true;
+                loginBtn.value = 'LOGGING IN...';
+            } else {
+                loadingContainer.style.display = 'none';
+                loginBtn.disabled = false;
+                loginBtn.value = 'LOGIN';
+            }
+        }
+
+        
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            
+            alertContainer.style.display = 'none';
+            
+            
+            showLoading(true);
+            
+            
+            const formData = new FormData(loginForm);
+            
+            
+            fetch('login_ajax.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                showLoading(false);
+                
+                if (data.success) {
+                    
+                    showAlert(data.message, 'success');
+                    
+                    
+                    setTimeout(() => {
+                        window.location.href = data.redirect;
+                    }, 1000);
+                } else {
+                
+                    showAlert(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showLoading(false);
+                showAlert('An error occurred. Please try again.', 'error');
+                console.error('Error:', error);
+            });
+        });
+
+        
+        document.getElementById('Email_Input').addEventListener('input', () => {
+            alertContainer.style.display = 'none';
+        });
+        
+        document.getElementById('Password_Input').addEventListener('input', () => {
+            alertContainer.style.display = 'none';
+        });
+    </script>
 </body>
 </html>
