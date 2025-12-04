@@ -50,254 +50,217 @@ $pending_requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Dashboard - Ashesi Attendance System</title>
     <link rel="stylesheet" href="student.css">
-    <style>
-        .logout-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background-color: #E63946;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        .logout-btn:hover {
-            background-color: #B22222;
-        }
-        .course-card {
-            background: #f8f9fa;
-            padding: 20px;
-            margin: 15px 0;
-            border-radius: 8px;
-            border-left: 4px solid #457B9D;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .course-card h4 {
-            margin: 0 0 10px 0;
-            color: #1D3557;
-            font-size: 1.3em;
-        }
-        .badge {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 0.85em;
-            font-weight: bold;
-            background: #E63946;
-            color: white;
-            margin-left: 10px;
-        }
-        .badge-success {
-            background: #28a745;
-        }
-        .badge-warning {
-            background: #ffc107;
-            color: #333;
-        }
-        .badge-info {
-            background: #17a2b8;
-        }
-        .alert {
-            padding: 15px;
-            margin: 15px auto;
-            border-radius: 5px;
-            max-width: 660px;
-            text-align: center;
-        }
-        .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .alert-error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: #999;
-        }
-        .empty-state-icon {
-            font-size: 3em;
-            margin-bottom: 10px;
-        }
-        button.btn-join {
-            background-color: #28a745;
-        }
-        button.btn-join:hover {
-            background-color: #218838;
-        }
-        .stats-card {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 10px 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-        .stats-number {
-            font-size: 2em;
-            font-weight: bold;
-            color: #E63946;
-        }
-        .schedule-table {
-            width: 100%;
-            margin-top: 15px;
-        }
-    </style>
 </head>
 <body>
-    <a href="logout.php" class="logout-btn">Logout</a>
-
-    <h1>Student Dashboard</h1>
-    <p style="text-align: center; color: #1D3557; margin: 10px 0; font-size: 1.1em;">
-        Welcome, <?php echo htmlspecialchars($user_name); ?>! 👋
-    </p>
-
-    <nav>
-        <p>ASHESI ATTENDANCE MANAGEMENT SYSTEM</p>
-    </nav>
-
-    <h2>Sections</h2>
-    <ul>
-        <li><a href="#my-courses"><b>My Courses</b></a></li>
-        <li><a href="#schedule"><b>Session Schedule</b></a></li>
-        <li><a href="#available"><b>Join New Courses</b></a></li>
-        <li><a href="#grades"><b>Grades/Reports</b></a></li>
-    </ul>
-
-    <hr>
-
-    <div id="alertContainer"></div>
-
     
-    <section id="my-courses">
-        <h3>My Courses</h3>
-        <p><b>List of enrolled courses:</b></p>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2> <?php echo htmlspecialchars(explode(' ', $user_name)[0]); ?></h2>
+            <p><?php echo htmlspecialchars($user_email); ?></p>
+        </div>
         
-        <?php if (count($enrolled_courses) > 0): ?>
-            <ul>
-                <?php foreach ($enrolled_courses as $course): ?>
-                    <li>
-                        <strong><?php echo htmlspecialchars($course['course_name']); ?></strong>
-                        <span class="badge"><?php echo htmlspecialchars($course['course_code']); ?></span>
-                        <span class="badge badge-success"><?php echo ucfirst(htmlspecialchars($course['enrollment_type'])); ?></span>
-                        <?php if ($course['description']): ?>
-                            <br><small><?php echo htmlspecialchars($course['description']); ?></small>
-                        <?php endif; ?>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
-        <?php else: ?>
-            <div class="empty-state">
-                <div class="empty-state-icon">📚</div>
-                <p>You are not enrolled in any courses yet.</p>
-            </div>
-        <?php endif; ?>
-
-        <?php if (count($pending_requests) > 0): ?>
-            <p><b>⏳ Pending Approval:</b></p>
-            <ul>
-                <?php foreach ($pending_requests as $request): ?>
-                    <li>
-                        <?php echo htmlspecialchars($request['course_name']); ?>
-                        <span class="badge badge-warning">Waiting for Approval</span>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
-        <?php endif; ?>
-    </section>
-
-    
-    <section id="schedule">
-        <h3>Session Schedule</h3>
-        <?php if (count($enrolled_courses) > 0): ?>
-            <table border="1" cellpadding="5" class="schedule-table">
-                <tr>
-                    <th>Course</th>
-                    <th>Day</th>
-                    <th>Time</th>
-                    <th>Type</th>
-                </tr>
-                <?php foreach ($enrolled_courses as $course): ?>
-                    <?php if ($course['day'] && $course['time']): ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($course['course_name']); ?></td>
-                            <td><?php echo htmlspecialchars($course['day']); ?></td>
-                            <td><?php echo htmlspecialchars($course['time']); ?></td>
-                            <td><?php echo ucfirst(htmlspecialchars($course['enrollment_type'])); ?></td>
-                        </tr>
-                    <?php endif; ?>
-                <?php endforeach; ?>
-            </table>
-        <?php else: ?>
-            <p>No schedule available. Enroll in courses to see your schedule.</p>
-        <?php endif; ?>
-    </section>
-
-    
-    <section id="available">
-        <h3>Available Courses</h3>
-        <p><b>Option to join new courses:</b></p>
+        <ul class="sidebar-menu">
+            <li><a href="#" onclick="showSection('dashboard'); return false;" class="menu-link active" data-section="dashboard"> Dashboard</a></li>
+            <li><a href="#" onclick="showSection('my-courses'); return false;" class="menu-link" data-section="my-courses"> My Courses</a></li>
+            <li><a href="#" onclick="showSection('schedule'); return false;" class="menu-link" data-section="schedule"> Schedule</a></li>
+            <li><a href="#" onclick="showSection('available'); return false;" class="menu-link" data-section="available">Join Courses</a></li>
+            <li><a href="#" onclick="showSection('grades'); return false;" class="menu-link" data-section="grades"> Grades</a></li>
+        </ul>
         
-        <?php if (count($available_courses) > 0): ?>
-            <?php foreach ($available_courses as $course): ?>
-                <div class="course-card" style="border-left-color: #17a2b8;">
-                    <h4>
-                        <?php echo htmlspecialchars($course['course_name']); ?>
-                        <span class="badge badge-info"><?php echo htmlspecialchars($course['course_code']); ?></span>
-                    </h4>
-                    
-                    <?php if ($course['description']): ?>
-                        <p><?php echo htmlspecialchars($course['description']); ?></p>
-                    <?php endif; ?>
-                    
-                    <?php if ($course['day'] && $course['time']): ?>
-                        <p><b>📅 Schedule:</b> <?php echo htmlspecialchars($course['day'] . ' at ' . $course['time']); ?></p>
-                    <?php endif; ?>
-                    
-                    <?php if ($course['faculty_first_name']): ?>
-                        <p><b>👨‍🏫 Faculty:</b> <?php echo htmlspecialchars($course['faculty_first_name'] . ' ' . $course['faculty_last_name']); ?></p>
-                    <?php endif; ?>
-                    
-                    <button type="button" onclick="joinCourse(<?php echo $course['id']; ?>, '<?php echo htmlspecialchars($course['course_name'], ENT_QUOTES); ?>', 'auditor')" style="margin-right: 10px;">
-                        Join as <b>Auditor</b>
-                    </button>
-                    <button type="button" onclick="joinCourse(<?php echo $course['id']; ?>, '<?php echo htmlspecialchars($course['course_name'], ENT_QUOTES); ?>', 'observer')">
-                        Join as <b>Observer</b>
-                    </button>
+        <div class="sidebar-footer">
+            <a href="logout.php" class="logout-btn">Log Out</a>
+        </div>
+    </div>
+
+    
+    <div class="main-content">
+        <h1>ASHESI ATTENDANCE SYSTEM</h1>
+        
+        <div id="alertContainer"></div>
+
+    
+        <div id="dashboard" class="content-section active">
+            <section>
+                <h3>Welcome to Your Dashboard</h3>
+                <p style="font-size: 1.1em; color: #666;">Hello <strong><?php echo htmlspecialchars($user_name); ?></strong>! Here's an overview of your account.</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 25px;">
+                    <div class="stats-card">
+                        <div class="stats-number"><?php echo count($enrolled_courses); ?></div>
+                        <p style="margin: 5px 0; color: #666; font-weight: 600;">Enrolled Courses</p>
+                    </div>
+                    <div class="stats-card">
+                        <div class="stats-number"><?php echo count($pending_requests); ?></div>
+                        <p style="margin: 5px 0; color: #666; font-weight: 600;">Pending Requests</p>
+                    </div>
+                    <div class="stats-card">
+                        <div class="stats-number"><?php echo count($available_courses); ?></div>
+                        <p style="margin: 5px 0; color: #666; font-weight: 600;">Available Courses</p>
+                    </div>
                 </div>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <div class="empty-state">
-                <div class="empty-state-icon">✅</div>
-                <p>No more courses available at this time.</p>
-            </div>
-        <?php endif; ?>
-    </section>
+            </section>
+        </div>
+
+        
+        <div id="my-courses" class="content-section">
+            <section>
+                <h3>My Enrolled Courses</h3>
+                
+                <?php if (count($enrolled_courses) > 0): ?>
+                    <?php foreach ($enrolled_courses as $course): ?>
+                        <div class="course-card">
+                            <h4>
+                                <?php echo htmlspecialchars($course['course_name']); ?>
+                                <span class="badge"><?php echo htmlspecialchars($course['course_code']); ?></span>
+                                <span class="badge badge-success"><?php echo ucfirst(htmlspecialchars($course['enrollment_type'])); ?></span>
+                            </h4>
+                            <?php if ($course['description']): ?>
+                                <p><?php echo htmlspecialchars($course['description']); ?></p>
+                            <?php endif; ?>
+                            <?php if ($course['day'] && $course['time']): ?>
+                                <p><strong> Schedule:</strong> <?php echo htmlspecialchars($course['day'] . ' at ' . $course['time']); ?></p>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="empty-state">
+                        <div class="empty-state-icon"></div>
+                        <p>You are not enrolled in any courses yet.</p>
+                    </div>
+                <?php endif; ?>
+
+                <?php if (count($pending_requests) > 0): ?>
+                    <h3 style="margin-top: 30px;">⏳ Pending Approval</h3>
+                    <?php foreach ($pending_requests as $request): ?>
+                        <div class="course-card" style="border-left-color: #ffc107;">
+                            <h4>
+                                <?php echo htmlspecialchars($request['course_name']); ?>
+                                <span class="badge badge-warning">Waiting for Approval</span>
+                            </h4>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </section>
+        </div>
+
+        
+        <div id="schedule" class="content-section">
+            <section>
+                <h3>My Class Schedule</h3>
+                <?php if (count($enrolled_courses) > 0): ?>
+                    <table class="schedule-table">
+                        <tr>
+                            <th>Course</th>
+                            <th>Day</th>
+                            <th>Time</th>
+                            <th>Type</th>
+                        </tr>
+                        <?php foreach ($enrolled_courses as $course): ?>
+                            <?php if ($course['day'] && $course['time']): ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($course['course_name']); ?></td>
+                                    <td><?php echo htmlspecialchars($course['day']); ?></td>
+                                    <td><?php echo htmlspecialchars($course['time']); ?></td>
+                                    <td><?php echo ucfirst(htmlspecialchars($course['enrollment_type'])); ?></td>
+                                </tr>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </table>
+                <?php else: ?>
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📅</div>
+                        <p>No schedule available. Enroll in courses to see your schedule.</p>
+                    </div>
+                <?php endif; ?>
+            </section>
+        </div>
 
     
-    <section id="grades">
-        <h3>Grades / Reports</h3>
-        <?php if (count($enrolled_courses) > 0): ?>
-            <ul>
-                <?php foreach ($enrolled_courses as $course): ?>
-                    <li>
-                        <?php echo htmlspecialchars($course['course_name']); ?> — 
-                        <span style="color: #666; font-style: italic;">Grade pending</span>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
-            <p><em>Note: Grades will be updated by faculty members.</em></p>
-        <?php else: ?>
-            <p>No enrolled courses. Enroll in courses to see your grades.</p>
-        <?php endif; ?>
-    </section>
+        <div id="available" class="content-section">
+            <section>
+                <h3>Join New Courses</h3>
+                
+                <?php if (count($available_courses) > 0): ?>
+                    <?php foreach ($available_courses as $course): ?>
+                        <div class="course-card" style="border-left-color: #17a2b8;">
+                            <h4>
+                                <?php echo htmlspecialchars($course['course_name']); ?>
+                                <span class="badge badge-info"><?php echo htmlspecialchars($course['course_code']); ?></span>
+                            </h4>
+                            
+                            <?php if ($course['description']): ?>
+                                <p><?php echo htmlspecialchars($course['description']); ?></p>
+                            <?php endif; ?>
+                            
+                            <?php if ($course['day'] && $course['time']): ?>
+                                <p><strong>📅 Schedule:</strong> <?php echo htmlspecialchars($course['day'] . ' at ' . $course['time']); ?></p>
+                            <?php endif; ?>
+                            
+                            <?php if ($course['faculty_first_name']): ?>
+                                <p><strong>👨‍🏫 Faculty:</strong> <?php echo htmlspecialchars($course['faculty_first_name'] . ' ' . $course['faculty_last_name']); ?></p>
+                            <?php endif; ?>
+                            
+                            <button type="button" onclick="joinCourse(<?php echo $course['id']; ?>, '<?php echo htmlspecialchars($course['course_name'], ENT_QUOTES); ?>', 'auditor')" style="margin-right: 10px;">
+                                Join as <b>Auditor</b>
+                            </button>
+                            <button type="button" onclick="joinCourse(<?php echo $course['id']; ?>, '<?php echo htmlspecialchars($course['course_name'], ENT_QUOTES); ?>', 'observer')">
+                                Join as <b>Observer</b>
+                            </button>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="empty-state">
+                        <div class="empty-state-icon">✅</div>
+                        <p>No more courses available at this time.</p>
+                    </div>
+                <?php endif; ?>
+            </section>
+        </div>
+
+        
+        <div id="grades" class="content-section">
+            <section>
+                <h3>Grades / Reports</h3>
+                <?php if (count($enrolled_courses) > 0): ?>
+                    <ul>
+                        <?php foreach ($enrolled_courses as $course): ?>
+                            <li>
+                                <?php echo htmlspecialchars($course['course_name']); ?> – 
+                                <span style="color: #666; font-style: italic;">Grade pending</span>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                    <p><em>Note: Grades will be updated by faculty members.</em></p>
+                <?php else: ?>
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📊</div>
+                        <p>No enrolled courses. Enroll in courses to see your grades.</p>
+                    </div>
+                <?php endif; ?>
+            </section>
+        </div>
+    </div>
 
     <script>
+        
+        function showSection(sectionId) {
+        
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+        
+            document.querySelectorAll('.menu-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            
+            document.getElementById(sectionId).classList.add('active');
+            
+            
+            document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
+        }
+
         
         function showAlert(message, type) {
             const alertContainer = document.getElementById('alertContainer');
@@ -306,29 +269,24 @@ $pending_requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
             alert.textContent = message;
             alertContainer.appendChild(alert);
             
-            
             setTimeout(() => alert.remove(), 5000);
         }
 
         
         function joinCourse(courseId, courseName, enrollmentType) {
-            
             const confirmMsg = `Do you want to join "${courseName}" as ${enrollmentType.toUpperCase()}?`;
             if (!confirm(confirmMsg)) {
                 return;
             }
 
-            
             const message = prompt('Add a message for the faculty (optional):');
 
-            
             const formData = new URLSearchParams();
             formData.append('action', 'request_enrollment');
             formData.append('course_id', courseId);
             formData.append('enrollment_type', enrollmentType);
             formData.append('message', message || '');
 
-            
             fetch('studentactions.php', {
                 method: 'POST',
                 body: formData
@@ -337,7 +295,6 @@ $pending_requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
             .then(data => {
                 if (data.success) {
                     showAlert('✅ ' + data.message, 'success');
-                    
                     setTimeout(() => location.reload(), 2000);
                 } else {
                     showAlert('❌ ' + data.message, 'error');
@@ -348,20 +305,6 @@ $pending_requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 console.error('Error:', error);
             });
         }
-
-        
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
     </script>
 </body>
 </html>
