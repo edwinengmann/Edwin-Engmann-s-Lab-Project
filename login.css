@@ -1,8 +1,6 @@
-
 body {
-  background-color: #FFFDD0; 
-  background-image: url('ashesi\ image1.jpg');
-  background-size: cover;
+  background-color: #671b1b; 
+  background-image: none; 
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
@@ -13,17 +11,18 @@ body {
   font-size: 2.5em;
   text-align: center;
   margin: 40px 0 30px 0;
-  color: #333;
+  color: #FFFFFF; 
   font-family: 'Arial Black', Arial, sans-serif;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); 
 }
 
 .login-page {
   width: 320px;
   margin: 0 auto;
   padding: 20px;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.95); 
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
 .login-page label {
@@ -65,15 +64,61 @@ body {
   text-align: center;
   margin-top: 20px;
   font-size: 0.9em;
-  color: #555;
+  color: #FFFFFF; 
 }
 
 .signup-link a {
-  color: #E63946;
+  color: #FFD700; 
   text-decoration: none;
   font-weight: 600;
 }
 
 .signup-link a:hover {
   text-decoration: underline;
+  color: #FFFFFF; 
+}
+
+.alert {
+    text-align: center;
+    padding: 10px;
+    margin: 10px auto;
+    width: 320px;
+    border-radius: 5px;
+    font-weight: bold;
+    display: none;
+}
+
+.alert-error {
+    background-color: #ffdddd;
+    color: #d8000c;
+    border: 1px solid #d8000c;
+}
+
+.alert-success {
+    background-color: #ddffdd;
+    color: #008c00;
+    border: 1px solid #008c00;
+}
+
+.loading {
+    display: none;
+    text-align: center;
+    margin: 10px auto;
+    color: #FFFFFF; 
+    font-weight: bold;
+}
+
+.spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #FFFFFF; 
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

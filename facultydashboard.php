@@ -2,11 +2,11 @@
 session_start();
 require_once 'config.php';
 
-
 requireRole('Faculty');
 
 $user_name = $_SESSION['user_name'];
 $user_email = $_SESSION['user_email'];
+$user_id = $_SESSION['user_id'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -15,132 +15,47 @@ $user_email = $_SESSION['user_email'];
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Faculty Dashboard</title>
   <link rel="stylesheet" href="faculty.css">
-  <style>
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0,0,0,0.5);
-    }
-    .modal-content {
-        background-color: #fff;
-        margin: 5% auto;
-        padding: 30px;
-        border-radius: 10px;
-        width: 90%;
-        max-width: 500px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-    .close {
-        color: #aaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-        cursor: pointer;
-    }
-    .close:hover { color: #000; }
-    .form-group {
-        margin-bottom: 15px;
-    }
-    .form-group label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: bold;
-    }
-    .form-group input, .form-group select, .form-group textarea {
-        width: 100%;
-        padding: 8px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        box-sizing: border-box;
-    }
-    .alert {
-        padding: 12px;
-        margin: 10px 0;
-        border-radius: 5px;
-    }
-    .alert-success {
-        background-color: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
-    }
-    .alert-error {
-        background-color: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
-    }
-    .request-card {
-        background: #f8f9fa;
-        padding: 15px;
-        margin: 10px 0;
-        border-radius: 8px;
-        border-left: 4px solid #E63946;
-    }
-    .request-actions button {
-        margin-right: 10px;
-        margin-top: 10px;
-    }
-    .btn-approve {
-        background: #28a745;
-    }
-    .btn-approve:hover {
-        background: #218838;
-    }
-    .btn-reject {
-        background: #dc3545;
-    }
-    .btn-reject:hover {
-        background: #c82333;
-    }
-    .course-item {
-        background: #f8f9fa;
-        padding: 15px;
-        margin: 10px 0;
-        border-radius: 8px;
-    }
-    .badge {
-        display: inline-block;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 0.85em;
-        font-weight: bold;
-        background: #E63946;
-        color: white;
-    }
-  </style>
 </head>
 <body>
-  <div class="container">
-    <div style="position: absolute; top: 20px; right: 20px;">
-        <a href="logout.php" style="background-color: #E63946; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold;">Logout</a>
+
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2> <?php echo htmlspecialchars(explode(' ', $user_name)[0]); ?></h2>
+      <p><?php echo htmlspecialchars($user_email); ?></p>
     </div>
     
+    <ul class="sidebar-menu">
+      <li><a href="#" onclick="showSection('profile'); return false;" class="menu-link active" data-section="profile"> Profile</a></li>
+      <li><a href="#" onclick="showSection('course'); return false;" class="menu-link" data-section="course">My Courses</a></li>
+      <li><a href="#" onclick="showSection('sessions'); return false;" class="menu-link" data-section="sessions"> Sessions</a></li>
+      <li><a href="#" onclick="showSection('requests'); return false;" class="menu-link" data-section="requests"> Student Requests</a></li>
+      <li><a href="#" onclick="showSection('report'); return false;" class="menu-link" data-section="report"> Reports</a></li>
+    </ul>
+    
+    <div class="sidebar-footer">
+      <a href="logout.php" class="logout-btn">Log Out</a>
+    </div>
+  </div>
+
+
+  <div class="container">
     <header>
-      <h1>Faculty Dashboard</h1>
+      <h1>FACULTY DASHBOARD</h1>
       <p style="text-align: center; color: #1D3557; margin: 10px 0;">Welcome, <?php echo htmlspecialchars($user_name); ?>!</p>
     </header>
 
     <div id="alertContainer"></div>
 
-    <nav>
-      <a href="#profile">Profile</a>
-      <a href="#course">My Courses</a>
-      <a href="#requests">Student Requests</a>
-      <a href="#report">Reports</a>
-    </nav>
 
-    <section id="profile">
+    <section id="profile" class="content-section active">
       <h2>Profile Information</h2>
       <p><strong>Name:</strong> <?php echo htmlspecialchars($user_name); ?></p>
       <p><strong>Email:</strong> <?php echo htmlspecialchars($user_email); ?></p>
       <p><strong>Role:</strong> Faculty</p>
     </section>
 
-    <section id="course">
+    
+    <section id="course" class="content-section">
       <h2>My Courses</h2>
       <button onclick="openCreateModal()">Create New Course</button>
       <div id="coursesContainer" style="margin-top: 20px;">
@@ -148,7 +63,18 @@ $user_email = $_SESSION['user_email'];
       </div>
     </section>
 
-    <section id="requests">
+    
+    <section id="sessions" class="content-section">
+      <h2>Attendance Sessions</h2>
+      <button onclick="openSessionModal()">Create New Session</button>
+      <button onclick="loadSessions()" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);">Refresh Sessions</button>
+      <div id="sessionsContainer" style="margin-top: 20px;">
+          <p>Loading sessions...</p>
+      </div>
+    </section>
+
+    
+    <section id="requests" class="content-section">
       <h2>Student Join Requests</h2>
       <button onclick="loadRequests()">Refresh Requests</button>
       <div id="requestsContainer" style="margin-top: 20px;">
@@ -156,7 +82,8 @@ $user_email = $_SESSION['user_email'];
       </div>
     </section>
 
-    <section id="report">
+    
+    <section id="report" class="content-section">
       <h2>Course Statistics</h2>
       <div id="statsContainer">
           <p>Loading statistics...</p>
@@ -202,8 +129,75 @@ $user_email = $_SESSION['user_email'];
     </div>
   </div>
 
-  <script>
+
+  <div id="sessionModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeSessionModal()">&times;</span>
+      <h2>Create Attendance Session</h2>
+      <form id="createSessionForm">
+        <div class="form-group">
+          <label for="sessionCourse">Select Course*:</label>
+          <select id="sessionCourse" name="course_id" required>
+            <option value="">Select a course</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="sessionDate">Session Date*:</label>
+          <input type="date" id="sessionDate" name="session_date" required>
+        </div>
+        <div class="form-group">
+          <label for="sessionTime">Session Time*:</label>
+          <input type="text" id="sessionTime" name="session_time" placeholder="e.g., 10:00 AM - 11:30 AM" required>
+        </div>
+        <div class="form-group">
+          <label for="codeExpiry">Code Valid For (minutes):</label>
+          <input type="number" id="codeExpiry" name="code_expiry" value="2" min="1" max="20" required>
+          <small style="color: #666;">How long should the attendance code be valid?</small>
+        </div>
+        <button type="submit" style="width: 100%;">Create Session & Generate Code</button>
+      </form>
+    </div>
+  </div>
+
   
+  <div id="attendanceModal" class="modal">
+    <div class="modal-content" style="max-width: 700px;">
+      <span class="close" onclick="closeAttendanceModal()">&times;</span>
+      <h2 id="attendanceModalTitle">Session Attendance</h2>
+      <div id="attendanceDetails" style="margin: 20px 0;">
+        <p><strong>Course:</strong> <span id="modalCourseName"></span></p>
+        <p><strong>Date:</strong> <span id="modalSessionDate"></span></p>
+        <p><strong>Time:</strong> <span id="modalSessionTime"></span></p>
+        <p><strong>Attendance Code:</strong> <span id="modalCode" style="font-size: 1.5em; color: #E63946; font-weight: bold;"></span></p>
+      </div>
+      <h3>Student Attendance</h3>
+      <div id="attendanceList" style="margin-top: 20px;">
+          <p>Loading attendance...</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentSessionId = null;
+
+    
+    function showSection(sectionId) {
+        document.querySelectorAll('.content-section').forEach(section => {
+            section.classList.remove('active');
+        });
+        document.querySelectorAll('.menu-link').forEach(link => {
+            link.classList.remove('active');
+        });
+        document.getElementById(sectionId).classList.add('active');
+        document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
+        
+    
+        if (sectionId === 'sessions') {
+            loadSessions();
+        }
+    }
+
+    
     function showAlert(message, type) {
         const alertContainer = document.getElementById('alertContainer');
         const alert = document.createElement('div');
@@ -225,8 +219,37 @@ $user_email = $_SESSION['user_email'];
         document.getElementById('createCourseForm').reset();
     }
 
+
+    const sessionModal = document.getElementById('sessionModal');
+    
+    function openSessionModal() {
+        sessionModal.style.display = 'block';
+        loadCoursesForSession();
+    }
+    
+    function closeSessionModal() {
+        sessionModal.style.display = 'none';
+        document.getElementById('createSessionForm').reset();
+    }
+
+    const attendanceModal = document.getElementById('attendanceModal');
+    
+    function openAttendanceModal(sessionId) {
+        currentSessionId = sessionId;
+        attendanceModal.style.display = 'block';
+        loadSessionAttendance(sessionId);
+    }
+    
+    function closeAttendanceModal() {
+        attendanceModal.style.display = 'none';
+        currentSessionId = null;
+    }
+
+    
     window.onclick = (event) => {
         if (event.target == createModal) closeCreateModal();
+        if (event.target == sessionModal) closeSessionModal();
+        if (event.target == attendanceModal) closeAttendanceModal();
     };
 
     
@@ -250,6 +273,29 @@ $user_email = $_SESSION['user_email'];
             }
         })
         .catch(error => showAlert('Error creating course', 'error'));
+    });
+
+    
+    document.getElementById('createSessionForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        formData.append('action', 'create_session');
+
+        fetch('facultyactions.php', {
+            method: 'POST',
+            body: new URLSearchParams(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('Session created! Code: ' + data.code, 'success');
+                closeSessionModal();
+                loadSessions();
+            } else {
+                showAlert(data.message, 'error');
+            }
+        })
+        .catch(error => showAlert('Error creating session', 'error'));
     });
 
     
@@ -279,6 +325,173 @@ $user_email = $_SESSION['user_email'];
             }
         })
         .catch(error => showAlert('Error loading courses', 'error'));
+    }
+
+    
+    function loadCoursesForSession() {
+        fetch('facultyactions.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'action=get_courses'
+        })
+        .then(response => response.json())
+        .then(data => {
+            const select = document.getElementById('sessionCourse');
+            if (data.success && data.courses.length > 0) {
+                select.innerHTML = '<option value="">Select a course</option>' + 
+                    data.courses.map(course => 
+                        `<option value="${course.id}">${course.course_name} (${course.course_code})</option>`
+                    ).join('');
+            } else {
+                select.innerHTML = '<option value="">No courses available</option>';
+            }
+        });
+    }
+
+    function loadSessions() {
+        fetch('facultyactions.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'action=get_sessions'
+        })
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById('sessionsContainer');
+            if (data.success && data.sessions.length > 0) {
+                container.innerHTML = data.sessions.map(session => `
+                    <div class="course-item">
+                        <h4>
+                            ${session.course_name} 
+                            <span class="badge badge-info">${session.course_code}</span>
+                            ${session.status === 'active' ? '<span class="badge badge-success">Active</span>' : '<span class="badge">Completed</span>'}
+                        </h4>
+                        <p><strong>Date:</strong> ${new Date(session.session_date).toLocaleDateString()}</p>
+                        <p><strong>Time:</strong> ${session.session_time}</p>
+                        <p><strong>Code:</strong> <span style="font-size: 1.2em; color: #E63946; font-weight: bold;">${session.attendance_code}</span></p>
+                        <p><strong>Code Expires:</strong> ${new Date(session.code_expires_at).toLocaleString()}</p>
+                        <p><strong>Attendance:</strong> ${session.present_count} / ${session.total_enrolled} students</p>
+                        <button onclick="openAttendanceModal(${session.id})">View Attendance</button>
+                        ${session.status === 'active' ? `<button onclick="completeSession(${session.id})" style="background: linear-gradient(135deg, #28a745 0%, #218838 100%);">Mark Complete</button>` : ''}
+                    </div>
+                `).join('');
+            } else {
+                container.innerHTML = '<p>No sessions created yet.</p>';
+            }
+        })
+        .catch(error => showAlert('Error loading sessions', 'error'));
+    }
+
+    
+    function loadSessionAttendance(sessionId) {
+        fetch('facultyactions.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `action=get_session_attendance&session_id=${sessionId}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                
+                document.getElementById('modalCourseName').textContent = data.session.course_name;
+                document.getElementById('modalSessionDate').textContent = new Date(data.session.session_date).toLocaleDateString();
+                document.getElementById('modalSessionTime').textContent = data.session.session_time;
+                document.getElementById('modalCode').textContent = data.session.attendance_code;
+
+                
+                const listContainer = document.getElementById('attendanceList');
+                if (data.students.length > 0) {
+                    listContainer.innerHTML = `
+                        <table>
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                                <th>Marked At</th>
+                                <th>Action</th>
+                            </tr>
+                            ${data.students.map(student => `
+                                <tr>
+                                    <td>${student.first_name} ${student.last_name}</td>
+                                    <td>${student.email}</td>
+                                    <td>
+                                        ${student.status === 'present' 
+                                            ? '<span class="badge badge-success">Present</span>' 
+                                            : '<span class="badge badge-warning">Absent</span>'}
+                                    </td>
+                                    <td>${student.marked_at ? new Date(student.marked_at).toLocaleString() : '-'}</td>
+                                    <td>
+                                        ${student.status === 'present' 
+                                            ? `<button onclick="markAbsent(${sessionId}, ${student.student_id})" class="btn-reject" style="padding: 6px 12px; font-size: 0.9em;">Mark Absent</button>`
+                                            : `<button onclick="markPresent(${sessionId}, ${student.student_id})" class="btn-approve" style="padding: 6px 12px; font-size: 0.9em;">Mark Present</button>`}
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </table>
+                    `;
+                } else {
+                    listContainer.innerHTML = '<p>No students enrolled in this course.</p>';
+                }
+            }
+        })
+        .catch(error => showAlert('Error loading attendance', 'error'));
+    }
+
+
+    function markPresent(sessionId, studentId) {
+        fetch('facultyactions.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `action=mark_attendance_manual&session_id=${sessionId}&student_id=${studentId}&status=present`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert(data.message, 'success');
+                loadSessionAttendance(sessionId);
+                loadSessions();
+            } else {
+                showAlert(data.message, 'error');
+            }
+        });
+    }
+
+    
+    function markAbsent(sessionId, studentId) {
+        fetch('facultyactions.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `action=mark_attendance_manual&session_id=${sessionId}&student_id=${studentId}&status=absent`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert(data.message, 'success');
+                loadSessionAttendance(sessionId);
+                loadSessions();
+            } else {
+                showAlert(data.message, 'error');
+            }
+        });
+    }
+
+
+    function completeSession(sessionId) {
+        if (!confirm('Mark this session as completed?')) return;
+        
+        fetch('facultyactions.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `action=complete_session&session_id=${sessionId}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert(data.message, 'success');
+                loadSessions();
+            } else {
+                showAlert(data.message, 'error');
+            }
+        });
     }
 
     
@@ -334,7 +547,7 @@ $user_email = $_SESSION['user_email'];
         .catch(error => showAlert('Error approving request', 'error'));
     }
 
-    
+
     function rejectRequest(requestId) {
         if (!confirm('Are you sure you want to reject this request?')) return;
         
@@ -376,7 +589,7 @@ $user_email = $_SESSION['user_email'];
         .catch(error => showAlert('Error deleting course', 'error'));
     }
 
-  
+
     function loadStats(courseCount) {
         const container = document.getElementById('statsContainer');
         container.innerHTML = `

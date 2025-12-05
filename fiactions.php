@@ -2,7 +2,7 @@
 session_start();
 require_once 'config.php';
 
-requireRole('Faculty');
+requireRole('FacultyIntern');
 
 header('Content-Type: application/json');
 
@@ -10,7 +10,7 @@ $response = ['success' => false, 'message' => ''];
 
 try {
     $action = $_POST['action'] ?? '';
-    $faculty_id = $_SESSION['user_id'];
+    $intern_id = $_SESSION['user_id'];
 
     switch ($action) {
         case 'create_course':
@@ -34,7 +34,7 @@ try {
                 INSERT INTO courses (course_name, course_code, description, faculty_id, day, time) 
                 VALUES (?, ?, ?, ?, ?, ?)
             ");
-            $stmt->execute([$course_name, $course_code, $description, $faculty_id, $day, $time]);
+            $stmt->execute([$course_name, $course_code, $description, $intern_id, $day, $time]);
 
             $response['success'] = true;
             $response['message'] = 'Course created successfully!';
@@ -47,7 +47,7 @@ try {
                 WHERE faculty_id = ? 
                 ORDER BY created_at DESC
             ");
-            $stmt->execute([$faculty_id]);
+            $stmt->execute([$intern_id]);
             $courses = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             $response['success'] = true;
@@ -55,7 +55,6 @@ try {
             break;
 
         case 'create_session':
-            
             $course_id = intval($_POST['course_id'] ?? 0);
             $session_date = trim($_POST['session_date'] ?? '');
             $session_time = trim($_POST['session_time'] ?? '');
@@ -65,29 +64,25 @@ try {
                 throw new Exception('All fields are required');
             }
 
-        
             $stmt = $conn->prepare("SELECT id FROM courses WHERE id = ? AND faculty_id = ?");
-            $stmt->execute([$course_id, $faculty_id]);
+            $stmt->execute([$course_id, $intern_id]);
             if (!$stmt->fetch()) {
                 throw new Exception('Course not found or unauthorized');
             }
 
-        
             do {
                 $attendance_code = strtoupper(substr(md5(uniqid(rand(), true)), 0, 6));
                 $stmt = $conn->prepare("SELECT id FROM sessions WHERE attendance_code = ?");
                 $stmt->execute([$attendance_code]);
             } while ($stmt->fetch());
 
-        
             $code_expires_at = date('Y-m-d H:i:s', strtotime($session_date . ' +' . $code_expiry . ' hours'));
 
-        
             $stmt = $conn->prepare("
                 INSERT INTO sessions (course_id, session_date, session_time, attendance_code, code_expires_at, created_by, status) 
                 VALUES (?, ?, ?, ?, ?, ?, 'active')
             ");
-            $stmt->execute([$course_id, $session_date, $session_time, $attendance_code, $code_expires_at, $faculty_id]);
+            $stmt->execute([$course_id, $session_date, $session_time, $attendance_code, $code_expires_at, $intern_id]);
 
             $response['success'] = true;
             $response['message'] = 'Session created successfully!';
@@ -95,7 +90,6 @@ try {
             break;
 
         case 'get_sessions':
-            
             $stmt = $conn->prepare("
                 SELECT 
                     s.*,
@@ -111,7 +105,7 @@ try {
                 GROUP BY s.id
                 ORDER BY s.session_date DESC, s.created_at DESC
             ");
-            $stmt->execute([$faculty_id]);
+            $stmt->execute([$intern_id]);
             $sessions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             $response['success'] = true;
@@ -119,35 +113,31 @@ try {
             break;
 
         case 'get_session_attendance':
-            
             $session_id = intval($_POST['session_id'] ?? 0);
 
             if ($session_id <= 0) {
                 throw new Exception('Invalid session ID');
             }
 
-            
             $stmt = $conn->prepare("
                 SELECT s.*, c.course_name, c.course_code 
                 FROM sessions s
                 INNER JOIN courses c ON s.course_id = c.id
                 WHERE s.id = ? AND c.faculty_id = ?
             ");
-            $stmt->execute([$session_id, $faculty_id]);
+            $stmt->execute([$session_id, $intern_id]);
             $session = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$session) {
                 throw new Exception('Session not found or unauthorized');
             }
 
-            
             $stmt = $conn->prepare("
                 SELECT 
                     u.id as student_id,
                     u.first_name,
                     u.last_name,
                     u.email,
-                    e.enrollment_type,
                     COALESCE(a.status, 'absent') as status,
                     a.marked_at
                 FROM enrollments e
@@ -165,7 +155,6 @@ try {
             break;
 
         case 'mark_attendance_manual':
-            
             $session_id = intval($_POST['session_id'] ?? 0);
             $student_id = intval($_POST['student_id'] ?? 0);
             $status = trim($_POST['status'] ?? 'present');
@@ -174,35 +163,19 @@ try {
                 throw new Exception('Invalid session or student ID');
             }
 
-            if (!in_array($status, ['present', 'absent', 'late'])) {
-                throw new Exception('Invalid status');
-            }
-
-        
             $stmt = $conn->prepare("
                 SELECT s.course_id 
                 FROM sessions s
                 INNER JOIN courses c ON s.course_id = c.id
                 WHERE s.id = ? AND c.faculty_id = ?
             ");
-            $stmt->execute([$session_id, $faculty_id]);
+            $stmt->execute([$session_id, $intern_id]);
             $session = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$session) {
                 throw new Exception('Session not found or unauthorized');
             }
 
-        
-            $stmt = $conn->prepare("
-                SELECT id FROM enrollments 
-                WHERE user_id = ? AND course_id = ? AND status = 'approved'
-            ");
-            $stmt->execute([$student_id, $session['course_id']]);
-            if (!$stmt->fetch()) {
-                throw new Exception('Student not enrolled in this course');
-            }
-
-        
             $stmt = $conn->prepare("
                 INSERT INTO attendance (session_id, student_id, status, marked_by, marked_at) 
                 VALUES (?, ?, ?, ?, NOW())
@@ -211,39 +184,10 @@ try {
                     marked_by = VALUES(marked_by),
                     marked_at = NOW()
             ");
-            $stmt->execute([$session_id, $student_id, $status, $faculty_id]);
+            $stmt->execute([$session_id, $student_id, $status, $intern_id]);
 
             $response['success'] = true;
             $response['message'] = 'Attendance marked successfully!';
-            break;
-
-        case 'complete_session':
-            
-            $session_id = intval($_POST['session_id'] ?? 0);
-
-            if ($session_id <= 0) {
-                throw new Exception('Invalid session ID');
-            }
-
-            
-            $stmt = $conn->prepare("
-                SELECT s.id 
-                FROM sessions s
-                INNER JOIN courses c ON s.course_id = c.id
-                WHERE s.id = ? AND c.faculty_id = ?
-            ");
-            $stmt->execute([$session_id, $faculty_id]);
-
-            if (!$stmt->fetch()) {
-                throw new Exception('Session not found or unauthorized');
-            }
-
-            
-            $stmt = $conn->prepare("UPDATE sessions SET status = 'completed' WHERE id = ?");
-            $stmt->execute([$session_id]);
-
-            $response['success'] = true;
-            $response['message'] = 'Session marked as completed!';
             break;
 
         case 'get_requests':
@@ -264,7 +208,7 @@ try {
                 WHERE c.faculty_id = ? AND e.status = 'pending'
                 ORDER BY e.created_at DESC
             ");
-            $stmt->execute([$faculty_id]);
+            $stmt->execute([$intern_id]);
             $requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             $response['success'] = true;
@@ -284,7 +228,7 @@ try {
                 INNER JOIN courses c ON e.course_id = c.id
                 WHERE e.id = ? AND c.faculty_id = ? AND e.status = 'pending'
             ");
-            $stmt->execute([$request_id, $faculty_id]);
+            $stmt->execute([$request_id, $intern_id]);
             
             if (!$stmt->fetch()) {
                 throw new Exception('Request not found or already processed');
@@ -310,7 +254,7 @@ try {
                 INNER JOIN courses c ON e.course_id = c.id
                 WHERE e.id = ? AND c.faculty_id = ? AND e.status = 'pending'
             ");
-            $stmt->execute([$request_id, $faculty_id]);
+            $stmt->execute([$request_id, $intern_id]);
             
             if (!$stmt->fetch()) {
                 throw new Exception('Request not found or already processed');
@@ -331,7 +275,7 @@ try {
             }
 
             $stmt = $conn->prepare("SELECT id FROM courses WHERE id = ? AND faculty_id = ?");
-            $stmt->execute([$course_id, $faculty_id]);
+            $stmt->execute([$course_id, $intern_id]);
             
             if (!$stmt->fetch()) {
                 throw new Exception('Course not found or unauthorized');
