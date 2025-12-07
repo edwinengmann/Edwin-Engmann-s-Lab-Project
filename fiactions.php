@@ -42,10 +42,12 @@ try {
 
         case 'get_courses':
             $stmt = $conn->prepare("
-                SELECT id, course_name, course_code, description, day, time, created_at 
-                FROM courses 
-                WHERE faculty_id = ? 
-                ORDER BY created_at DESC
+                SELECT c.id, c.course_name, c.course_code, c.description, c.day, c.time, c.created_at
+                FROM courses c
+                INNER JOIN users u ON c.faculty_id = u.id
+                WHERE u.role = 'FacultyIntern' 
+                AND u.id = ?
+                ORDER BY c.created_at DESC;
             ");
             $stmt->execute([$intern_id]);
             $courses = $stmt->fetchAll(PDO::FETCH_ASSOC);

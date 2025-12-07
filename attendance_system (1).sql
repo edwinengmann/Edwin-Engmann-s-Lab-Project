@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 05, 2025 at 11:57 PM
+-- Generation Time: Dec 07, 2025 at 08:34 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -24,7 +24,7 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
-
+-- Table structure for table `attendance`
 --
 
 CREATE TABLE `attendance` (
@@ -36,10 +36,17 @@ CREATE TABLE `attendance` (
   `marked_by` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `attendance`
+--
+
+INSERT INTO `attendance` (`id`, `session_id`, `student_id`, `status`, `marked_at`, `marked_by`) VALUES
+(1, 4, 1, 'present', '2025-12-07 19:17:27', NULL);
+
 -- --------------------------------------------------------
 
 --
-
+-- Table structure for table `courses`
 --
 
 CREATE TABLE `courses` (
@@ -54,16 +61,16 @@ CREATE TABLE `courses` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
-
+-- Dumping data for table `courses`
 --
 
 INSERT INTO `courses` (`id`, `course_name`, `course_code`, `description`, `day`, `time`, `faculty_id`, `created_at`) VALUES
-(1, 'WEBBBB', 'CS3333', 'LEARN', 'Monday', '8:00AM - 9:30AM', 2, '2025-11-24 23:09:20');
+(1, 'WEBBBB', 'CS3333', 'LEARN', 'Monday', '8:00AM - 9:30AM', 3, '2025-11-24 23:09:20');
 
 -- --------------------------------------------------------
 
 --
-
+-- Table structure for table `course_requests`
 --
 
 CREATE TABLE `course_requests` (
@@ -80,7 +87,7 @@ CREATE TABLE `course_requests` (
 -- --------------------------------------------------------
 
 --
-
+-- Table structure for table `enrollments`
 --
 
 CREATE TABLE `enrollments` (
@@ -90,13 +97,21 @@ CREATE TABLE `enrollments` (
   `enrollment_type` enum('regular','auditor','observer') DEFAULT 'regular',
   `status` enum('approved','pending','rejected') DEFAULT 'approved',
   `grade` varchar(10) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `request_message` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `enrollments`
+--
+
+INSERT INTO `enrollments` (`id`, `user_id`, `course_id`, `enrollment_type`, `status`, `grade`, `created_at`, `request_message`) VALUES
+(1, 1, 1, '', 'approved', NULL, '2025-12-07 18:45:36', '12121vd');
 
 -- --------------------------------------------------------
 
 --
-
+-- Table structure for table `sessions`
 --
 
 CREATE TABLE `sessions` (
@@ -112,16 +127,20 @@ CREATE TABLE `sessions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
-
+-- Dumping data for table `sessions`
 --
 
 INSERT INTO `sessions` (`id`, `course_id`, `session_date`, `session_time`, `attendance_code`, `code_expires_at`, `created_by`, `status`, `created_at`) VALUES
-(1, 1, '2025-12-05', '8:00AM - 9:30AM', '704DB9', '2025-12-05 01:00:00', 2, 'active', '2025-12-05 21:24:07');
+(1, 1, '2025-12-05', '8:00AM - 9:30AM', '704DB9', '2025-12-05 01:00:00', 2, 'completed', '2025-12-05 21:24:07'),
+(2, 1, '2025-12-07', '10:20AM - 11:50AM', '37B716', '2025-12-07 10:00:00', 2, 'completed', '2025-12-07 18:47:28'),
+(3, 1, '2025-12-07', '8:00AM - 9:30AM', '6E6AD6', '2025-12-07 15:00:00', 2, 'active', '2025-12-07 18:49:34'),
+(4, 1, '2025-12-12', '8', '29C293', '2025-12-12 02:00:00', 2, 'active', '2025-12-07 19:10:24'),
+(5, 1, '2025-12-07', '7:00PM - 9:30PM', '43808E', '2025-12-07 20:00:00', 2, 'active', '2025-12-07 19:11:17');
 
 -- --------------------------------------------------------
 
 --
-
+-- Table structure for table `users`
 --
 
 CREATE TABLE `users` (
@@ -137,7 +156,7 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
-
+-- Dumping data for table `users`
 --
 
 INSERT INTO `users` (`id`, `first_name`, `last_name`, `role`, `email`, `contact`, `password`, `created_at`, `updated_at`) VALUES
@@ -146,11 +165,11 @@ INSERT INTO `users` (`id`, `first_name`, `last_name`, `role`, `email`, `contact`
 (3, 'Hutton', 'Addy', 'FacultyIntern', 'huttonaddy@gmail.com', '0543456785', '$2y$10$YM03NUqm0ZXopANb25bUPOEdHrOEfVxj.QlJW1.LSYbEoXmnsym0S', '2025-12-05 22:52:44', '2025-12-05 22:52:44');
 
 --
-
+-- Indexes for dumped tables
 --
 
 --
-
+-- Indexes for table `attendance`
 --
 ALTER TABLE `attendance`
   ADD PRIMARY KEY (`id`),
@@ -160,7 +179,7 @@ ALTER TABLE `attendance`
   ADD KEY `idx_attendance_session` (`session_id`);
 
 --
-
+-- Indexes for table `courses`
 --
 ALTER TABLE `courses`
   ADD PRIMARY KEY (`id`),
@@ -168,7 +187,7 @@ ALTER TABLE `courses`
   ADD KEY `idx_course_faculty` (`faculty_id`);
 
 --
-
+-- Indexes for table `course_requests`
 --
 ALTER TABLE `course_requests`
   ADD PRIMARY KEY (`id`),
@@ -178,7 +197,7 @@ ALTER TABLE `course_requests`
   ADD KEY `idx_request_status` (`status`);
 
 --
-
+-- Indexes for table `enrollments`
 --
 ALTER TABLE `enrollments`
   ADD PRIMARY KEY (`id`),
@@ -187,7 +206,7 @@ ALTER TABLE `enrollments`
   ADD KEY `idx_enrollment_course` (`course_id`);
 
 --
-
+-- Indexes for table `sessions`
 --
 ALTER TABLE `sessions`
   ADD PRIMARY KEY (`id`),
@@ -197,7 +216,7 @@ ALTER TABLE `sessions`
   ADD KEY `idx_session_course` (`course_id`);
 
 --
-
+-- Indexes for table `users`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
@@ -206,47 +225,51 @@ ALTER TABLE `users`
   ADD KEY `idx_user_role` (`role`);
 
 --
-
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
-
+-- AUTO_INCREMENT for table `attendance`
 --
 ALTER TABLE `attendance`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
-
+-- AUTO_INCREMENT for table `courses`
 --
 ALTER TABLE `courses`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
-
+-- AUTO_INCREMENT for table `course_requests`
 --
 ALTER TABLE `course_requests`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
-
+-- AUTO_INCREMENT for table `enrollments`
 --
 ALTER TABLE `enrollments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
-
---
-ALTER TABLE `sessions`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
+--
+-- AUTO_INCREMENT for table `sessions`
+--
+ALTER TABLE `sessions`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
-
+-- Constraints for dumped tables
 --
 
+--
+-- Constraints for table `attendance`
 --
 ALTER TABLE `attendance`
   ADD CONSTRAINT `attendance_ibfk_1` FOREIGN KEY (`session_id`) REFERENCES `sessions` (`id`) ON DELETE CASCADE,
@@ -254,27 +277,27 @@ ALTER TABLE `attendance`
   ADD CONSTRAINT `attendance_ibfk_3` FOREIGN KEY (`marked_by`) REFERENCES `users` (`id`) ON DELETE SET NULL;
 
 --
-
+-- Constraints for table `courses`
 --
 ALTER TABLE `courses`
   ADD CONSTRAINT `courses_ibfk_1` FOREIGN KEY (`faculty_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
-
+-- Constraints for table `course_requests`
 --
 ALTER TABLE `course_requests`
   ADD CONSTRAINT `course_requests_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `course_requests_ibfk_2` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE;
 
 --
-
+-- Constraints for table `enrollments`
 --
 ALTER TABLE `enrollments`
   ADD CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `enrollments_ibfk_2` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE;
 
 --
--
+-- Constraints for table `sessions`
 --
 ALTER TABLE `sessions`
   ADD CONSTRAINT `sessions_ibfk_1` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE,
