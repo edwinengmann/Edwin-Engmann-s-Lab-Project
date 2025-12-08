@@ -2,9 +2,9 @@
 session_start();
 
 $host = 'localhost';
-$dbname = 'attendance_system';
-$username = 'root';
-$password = '';
+$dbname = 'webtech_2025A_edwin_engman';
+$username = 'edwin.engmann';
+$password = '20277505';
 
 
 header('Content-Type: application/json');
