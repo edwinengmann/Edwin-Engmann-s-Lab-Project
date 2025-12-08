@@ -1,8 +1,8 @@
 <?php
 $host = 'localhost';
-$dbname = 'attendance_system';
-$username = 'root';
-$password = '';
+$dbname = 'webtech_2025A_edwin_engmann';
+$username = 'edwin.engmann';
+$password = '20277505';
 
 try {
     $conn = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
